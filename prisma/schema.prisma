@@ -1,0 +1,398 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
+  userName        String
+  email           String         @unique
+  password        String
+  profileImage    String?
+  fcmToken        String?
+  stripeUserId    String?
+  isSetup         Boolean        @default(false)
+  avgRating       Float          @default(0)
+  totalReview     Int            @default(0)
+  role            UserRole       @default(USER)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  userLocation    UserLocation[]
+  sender          Room[]         @relation("user1Relation")
+  receiver        Room[]         @relation("user2Relation")
+  givenReviews    Review[]       @relation("Reviewer")
+  receivedReviews Review[]       @relation("Worker")
+  reviewWorker    UserReview[]   @relation("ReviewWorker")
+  reviewUser      UserReview[]   @relation("getReviewUser")
+  userProfile     UserProfile?
+  status          UserStatus
+  workerProfile   WorkerProfile?
+  jobs            Job[]
+  applications    Application[]
+  workerBookings  Booking[]      @relation("WorkerBookings")
+  userBookings    Booking[]      @relation("UserBookings")
+  availabilities  Availability[]
+  withdraws       Withdraw[]
+
+  @@map("users")
+}
+
+model PendingUser {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userName  String
+  email     String   @unique
+  role      UserRole @default(USER)
+  password  String
+  otpCode   String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("pendingUsers")
+}
+
+model UserProfile {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   @unique @db.ObjectId
+  gender        Gender
+  age           Int
+  bio           String?
+  walletBalance Float    @default(0)
+  netSpent      Float    @default(0)
+  ethnicity     String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User?    @relation(fields: [userId], references: [id])
+
+  @@map("userProfiles")
+}
+
+model WorkerProfile {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  workerId        String   @unique @db.ObjectId
+  gender          Gender
+  age             Int
+  ethnicity       String
+  disability      Boolean
+  bio             String
+  skills          String[]
+  language        String
+  experience      String
+  hourlyRate      Float    @default(1)
+  licenceNumber   String?
+  certificateUrl  String?
+  licenceUrl      String?
+  immunizationUrl String?
+  cprUrl          String?
+  stripeAccountId String?
+  userAccessCode  String?
+  generatedLink   String?
+  allTimeEarning  Float    @default(0)
+  currentEarning  Float    @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  worker          User?    @relation(fields: [workerId], references: [id])
+
+  @@map("workerProfiles")
+}
+
+model UserLocation {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String?  @db.ObjectId
+  latitude  Float
+  longitude Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@map("user_locations")
+}
+
+model Availability {
+  id        String          @id @default(auto()) @map("_id") @db.ObjectId
+  workerId  String          @db.ObjectId
+  dayOfWeek Int
+  slots     AvailableSlot[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  user      User            @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@map("availabilities")
+}
+
+model AvailableSlot {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  availabilityId String       @db.ObjectId
+  startTime      String
+  endTime        String
+  availability   Availability @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@map("availableSlots")
+}
+
+model Otp {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  otpCode   String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("otps")
+}
+
+model Job {
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String        @db.ObjectId
+  title        String
+  description  String
+  skill        String
+  fileUrl      String?
+  latitude     Float
+  longitude    Float
+  address      String
+  price        Float
+  date         DateTime
+  startTime    String
+  endTime      String
+  status       TJobStatus    @default(Active)
+  street       String
+  postal       String
+  state        String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  user         User          @relation(fields: [userId], references: [id])
+  applications Application[]
+
+  @@map("jobs")
+}
+
+model Application {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  workerId  String   @db.ObjectId
+  jobId     String   @db.ObjectId
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  worker    User     @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@map("applications")
+}
+
+model Booking {
+  id               String          @id @default(auto()) @map("_id") @db.ObjectId
+  workerId         String          @db.ObjectId
+  userId           String          @db.ObjectId
+  purpose          String
+  status           BookingStatus
+  date             DateTime
+  address          String
+  price            Float
+  startTime        String?
+  endTime          String?
+  duration         String?
+  isReviewed       Boolean         @default(false)
+  isWorkerReviewed Boolean         @default(false)
+  isReported       Boolean         @default(false)
+  isWorkerReported Boolean         @default(false)
+  overTimeStatus   TOvertimeStatus @default(Not_Requested)
+  overTimeCharge   Float           @default(0)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  worker           User            @relation("WorkerBookings", fields: [workerId], references: [id], onDelete: Cascade)
+  user             User            @relation("UserBookings", fields: [userId], references: [id], onDelete: Cascade)
+  userReports      UserReport[]
+  workerReports    WorkerReport[]
+  deliveryProofs   deliveryProof[]
+
+  @@map("bookings")
+}
+
+model deliveryProof {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  bookingId String   @db.ObjectId
+  message   String
+  fileUrl   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  @@map("deliveryProofs")
+}
+
+model Review {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  workerId  String   @db.ObjectId
+  comment   String
+  rating    Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reviewer User @relation("Reviewer", fields: [userId], references: [id])
+  worker   User @relation("Worker", fields: [workerId], references: [id])
+
+  @@map("reviews")
+}
+
+model UserReview {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  workerId  String   @db.ObjectId
+  comment   String
+  rating    Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reviewer User @relation("ReviewWorker", fields: [userId], references: [id], onDelete: Cascade)
+  worker   User @relation("getReviewUser", fields: [workerId], references: [id], onDelete: Cascade)
+
+  @@map("userReviews")
+}
+
+model UserReport {
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  bookingId  String       @db.ObjectId
+  comment    String
+  status     ReportStatus @default(Pending)
+  adminReply String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  booking    Booking      @relation(fields: [bookingId], references: [id])
+
+  @@map("userReports")
+}
+
+model WorkerReport {
+  id         String             @id @default(auto()) @map("_id") @db.ObjectId
+  bookingId  String             @db.ObjectId
+  comment    String
+  createdAt  DateTime           @default(now())
+  adminReply String?
+  status     WorkerReportStatus @default(Pending)
+  updatedAt  DateTime           @updatedAt
+  booking    Booking            @relation(fields: [bookingId], references: [id])
+
+  @@map("workerReports")
+}
+
+model Notification {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  receiverId String?  @db.ObjectId
+  senderId   String?  @db.ObjectId
+  title      String?
+  content    String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("notifications")
+}
+
+model Withdraw {
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  workerId  String       @db.ObjectId
+  amount    Int
+  status    TApplyStatus @default(Pending)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  worker    User         @relation(fields: [workerId], references: [id])
+
+  @@map("withdraws")
+}
+
+model Room {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  senderId   String?  @db.ObjectId
+  receiverId String?  @db.ObjectId
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user1      User?    @relation("user1Relation", fields: [senderId], references: [id])
+  user2      User?    @relation("user2Relation", fields: [receiverId], references: [id])
+
+  message Message[]
+
+  @@unique([senderId, receiverId])
+  @@map("rooms")
+}
+
+model Message {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  roomId    String   @db.ObjectId
+  user1Id   String   @db.ObjectId
+  user2Id   String   @db.ObjectId
+  content   String?
+  fileUrl   String[]
+  user1Read Boolean  @default(false)
+  user2Read Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  room      Room     @relation(fields: [roomId], references: [id])
+
+  @@map("messages")
+}
+
+enum UserStatus {
+  Active
+  Blocked
+  Pending
+  Verification_Submitted
+  Link_Generated
+}
+
+enum TJobStatus {
+  Active
+  Inactive
+}
+
+enum TApplyStatus {
+  Pending
+  Accepted
+  Rejected
+}
+
+enum TOvertimeStatus {
+  Not_Requested
+  Pending
+  Accepted
+}
+
+enum BookingStatus {
+  Pending
+  Active
+  Completed
+  Cancelled
+  Refunded
+}
+
+enum ReportStatus {
+  Pending
+  Got_Refund
+  Partial_Refund
+  False_Claim
+}
+
+enum WorkerReportStatus {
+  Pending
+  User_Punished
+  False_Claim
+}
+
+enum Gender {
+  Male
+  Female
+  Other
+}
+
+enum UserRole {
+  ADMIN
+  WORKER
+  USER
+}
