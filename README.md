@@ -1,175 +1,101 @@
-<div align="center">
+# 🛠️ Skilled Trades — On-Demand Services & Artisan Marketplace API
 
-![Abiola Jibade Backend Banner](assets/banner.svg)
+<p align="center">
+  <img src="./assets/banner.svg" alt="Architecture Banner" width="100%" />
+</p>
 
-# Abiola Jibade Backend — On-Demand Worker & Gig Marketplace API
-
-A production-grade RESTful API and WebSocket backend powering an on-demand gig economy service marketplace. Engineered with **Node.js**, **Express**, **TypeScript**, **Prisma ORM**, **Stripe Escrow Payments**, and **Socket.io** real-time messaging.
-
-[![Express.js](https://img.shields.io/badge/Express.js-4.x-black?style=for-the-badge&logo=express)](https://expressjs.com/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
-[![Prisma](https://img.shields.io/badge/Prisma-6.x-2D3748?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
-[![Stripe](https://img.shields.io/badge/Stripe-Escrow_Payments-635BFF?style=for-the-badge&logo=stripe)](https://stripe.com/)
-[![Socket.io](https://img.shields.io/badge/Socket.io-Realtime_Chat-010101?style=for-the-badge&logo=socketdotio)](https://socket.io/)
-[![License](https://img.shields.io/badge/License-ISC-green?style=for-the-badge)](LICENSE)
-
-</div>
-
----
-
-## 🌟 Overview
-
-**Abiola Jibade Backend** is the core transaction and workflow engine facilitating connections between clients requiring specialized on-demand tasks and vetted service workers. The platform handles end-to-end lifecycle management: job posting, candidate bidding/applications, booking scheduling, automated escrow payment capture via Stripe, proof-of-delivery reviews, and worker payouts.
-
-Coupled with the [`abiolajibade_dashboard`](https://github.com/shahjalal-labs/abiolajibade_dashboard), administrators maintain global platform oversight over user verification, dispute arbitration, payment logs, and transaction volume.
+<p align="center">
+  <a href="https://www.postman.com/shahjalal-backend-9458759/shahjalal-api-portfolio/collection/48491387-2af6c691-ee1d-4ac3-aa05-e346f6afc02f">
+    <img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="height: 34px;" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://www.postman.com/shahjalal-backend-9458759/shahjalal-api-portfolio/collection/48491387-2af6c691-ee1d-4ac3-aa05-e346f6afc02f">
+    <img src="https://img.shields.io/badge/Postman-Interactive%20API%20Documentation-FF6C37?style=for-the-badge&logo=postman&logoColor=white" alt="Postman Documentation" />
+  </a>
+  &nbsp;&nbsp;
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  &nbsp;&nbsp;
+  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js" />
+  &nbsp;&nbsp;
+  <img src="https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express" />
+</p>
 
 ---
 
-## 🚀 Key Features & Capabilities
+## 📌 Executive Overview
 
-- 👷 **Worker Onboarding & Availability Management**: Worker profiles, skills verification, real-time weekly availability schedules, and localized slot booking.
-- 💼 **Job Lifecycle & Escrow Bookings**: Clients post job requests, workers submit applications, and accepted bookings trigger Stripe payment authorization with secure escrow hold.
-- 📦 **Proof of Delivery & Dispute Resolution**: Worker delivery proof submission (photo verification, client sign-off) and automated funds release or escalation.
-- 💬 **Live Chat & Push Notifications**: WebSocket bidirectional messaging with chat room persistence, read receipts, and Firebase Cloud Messaging (FCM).
-- 💳 **Stripe Payouts & Balance Withdrawal**: Integrated worker balance ledger, withdrawal requests, and Stripe transfer webhooks.
-- 🛡️ **Enterprise Security & Validation**: Role-Based Access Control (Admin, Client, Worker), Zod request schema validation, bcrypt hashing, and rate limiting.
+On-demand blue-collar trade marketplace, artisan dispatch, verified job postings, bidding/application reviews, service slots, and delivery proof escrow built with Node.js, Express, TypeScript, and Prisma.
+
+This microservice has been designed following enterprise software engineering standards, featuring clean modular service architecture, centralized error handling, robust JWT authorization, strict input validation, and comprehensive automated database models.
 
 ---
 
-## 🏛️ System Architecture
+## ⚡ Interactive API Documentation (Postman)
 
-```
-[ Clients & Workers ]              [ Admin Console ]
-         │                                 │
-         ▼                                 ▼
-   [ Nginx / Reverse Proxy & Rate Limiter ]
-         │
-         ▼
-[ Express & TypeScript Application Server ]
-   ├── Authentication & RBAC (JWT & bcrypt)
-   ├── Job Matching & Booking State Machine
-   ├── Real-Time Gateway (Socket.io)
-   └── Stripe Payment & Escrow Webhooks
-         │
-         ├──► [ Prisma ORM ] ──► [ PostgreSQL / MongoDB ]
-         ├──► [ Redis ] (Session Cache & Rate Limiting)
-         ├──► [ DigitalOcean Spaces / S3 ] (Delivery Proof & Asset Storage)
-         └──► [ Firebase Admin ] (Push Notifications)
-```
+The entire API specification, complete with route headers, payload samples, and JWT authentication schemas, is published and directly accessible in the public Postman workspace:
+
+👉 **[Launch Interactive Postman Workspace](https://www.postman.com/shahjalal-backend-9458759/shahjalal-api-portfolio/collection/48491387-2af6c691-ee1d-4ac3-aa05-e346f6afc02f)** *(No forking or sign-in required — instant browser reference)*
+
+- **Collection UID**: `48491387-2af6c691-ee1d-4ac3-aa05-e346f6afc02f`
+- **Workspace**: Shahjalal API Portfolio
+- **Environment**: Cloud Production / Local Docker Compose
 
 ---
 
-## 📁 Repository Structure
+## 🏗️ Architecture & Data Modeling
 
-```
-abiolajibade_backend/
-├── assets/
-│   └── banner.svg              # Architecture and repository banner
-├── prisma/
-│   └── schema.prisma           # Prisma data models (Users, Jobs, Bookings, Reviews)
-├── src/
-│   ├── app/
-│   │   ├── modules/
-│   │   │   ├── admin/          # Platform administration & analytics
-│   │   │   ├── auth/           # Registration, login, OTP verification
-│   │   │   ├── availability/   # Slot definitions & calendar schedules
-│   │   │   ├── booking/        # Order booking engine & status machine
-│   │   │   ├── job/            # Job posts, proposals, and worker bids
-│   │   │   ├── message/        # Direct messaging & chat history
-│   │   │   ├── notifications/  # User alert dispatch & FCM triggers
-│   │   │   ├── report/         # Dispute filing & abuse reporting
-│   │   │   ├── review/         # Dual rating system (Worker & Client)
-│   │   │   ├── socket/         # WebSocket connection & event handlers
-│   │   │   ├── user/           # User profile & location tracking
-│   │   │   ├── withdraw/       # Worker withdrawal & revenue disbursements
-│   │   │   └── worker/         # Worker vetting & profile credentials
-│   │   ├── middlewares/        # Auth guards, global error handler, validation
-│   │   └── routes/             # Centralized Express router
-│   ├── config/                 # Environment variables and service credentials
-│   ├── errors/                 # Standardized AppError & error handler
-│   ├── helpers/                # Pagination, JWT tokenization, email templates
-│   ├── interfaces/             # TypeScript domain definitions
-│   ├── shared/                 # Reusable utility functions
-│   ├── app.ts                  # Express application setup
-│   └── server.ts               # HTTP & WebSocket bootstrap server
-├── .env.example                # Sanitized environment configuration template
-├── package.json                # Dependencies and project metadata
-└── tsconfig.json               # TypeScript configuration
-```
+The backend persistence layer is engineered with production database schemas:
 
----
-
-## 💻 Tech Stack Specification
-
-| Domain | Selected Technologies |
+| Entity Model | Domain Responsibility |
 | :--- | :--- |
-| **Runtime & Language** | Node.js (LTS), TypeScript 5.5 |
-| **API Framework** | Express.js 4.19 |
-| **ORM & Database** | Prisma ORM 6.3, PostgreSQL / MongoDB |
-| **Real-time Protocol** | Socket.io 4.x |
-| **Payment Gateway** | Stripe SDK (Escrow, Payment Intents, Webhooks) |
-| **Cloud Storage** | DigitalOcean Spaces / AWS S3 SDK |
-| **Push Notifications** | Firebase Admin SDK |
-| **Authentication & Auth** | JSON Web Token (JWT), bcryptjs |
-| **Validation** | Zod 3.23 |
+| `WorkerProfile` | Artisan trade credentials, certified licenses, and portfolio showcase |
+| `Job / Application` | Customer service RFQs, artisan proposals, and quote submissions |
+| `Booking / Slot` | Dispatched field appointments, calendar slots, and arrival tracking |
+| `DeliveryProof` | Cryptographic photographic completion proof and escrow payouts |
 
 ---
 
-## 🛠️ Getting Started & Local Development
+## 🚀 Getting Started
 
-### Prerequisites
+### 1. Prerequisites
+- **Node.js** v18.x or v20.x
+- **PostgreSQL** or **MongoDB** (refer to `.env.example`)
+- **Redis** (for BullMQ queues where applicable)
 
-- **Node.js**: `v20.x` or higher
-- **PostgreSQL / MongoDB Database**
-- **Stripe CLI** (for testing webhooks)
-
-### 1. Clone the Repository
-
+### 2. Installation & Setup
 ```bash
+# Clone the repository
 git clone https://github.com/shahjalal-labs/abiolajibade_backend.git
 cd abiolajibade_backend
-```
 
-### 2. Install Dependencies
-
-```bash
+# Install dependencies
 npm install
-```
 
-### 3. Configure Environment Variables
-
-```bash
+# Configure environment variables
 cp .env.example .env
 ```
 
-Update `.env` with your database URL, Stripe keys, and JWT secrets.
-
-### 4. Run Database Migrations & Prisma Generation
-
+### 3. Database Migration & Development
 ```bash
+# Generate database client
 npx prisma generate
-npx prisma db push
-```
 
-### 5. Run Development Server
+# Run database migrations
+npx prisma migrate dev
 
-```bash
+# Start development server
 npm run dev
 ```
 
-The API will be available at [http://localhost:5000](http://localhost:5000).
-
 ---
 
-## 👨‍💻 Engineering & Authorship
+## 👨‍💻 Engineering & Maintainer
 
-Developed and engineered by **Md. Shahjalal**.
-
-- **GitHub**: [@shahjalal-labs](https://github.com/shahjalal-labs)
-- **Email**: [muhommodshahjalal@gmail.com](mailto:muhommodshahjalal@gmail.com)
+**Md. Shahjalal**  
+*Full Stack Software Engineer & Solutions Architect*  
+- **Email**: [muhommodshahjalal@gmail.com](mailto:muhommodshahjalal@gmail.com)  
+- **GitHub**: [@shahjalal-labs](https://github.com/shahjalal-labs)  
+- **Postman Portfolio**: [Shahjalal API Portfolio](https://www.postman.com/shahjalal-backend-9458759/shahjalal-api-portfolio)
 
 ---
-
-## 📄 License
-
-This project is open-source and available under the [ISC License](LICENSE).
+<p align="center"><sub>Engineered with precision for production reliability and seamless scalability.</sub></p>
